@@ -23,6 +23,7 @@ package edu.ucla.sspace.clustering;
 
 import edu.ucla.sspace.clustering.criterion.CriterionFunction;
 import edu.ucla.sspace.clustering.criterion.I1Function;
+import edu.ucla.sspace.clustering.criterion.I3Function;
 
 import edu.ucla.sspace.clustering.seeding.KMeansSeed;
 import edu.ucla.sspace.clustering.seeding.RandomSeed;
@@ -30,28 +31,13 @@ import edu.ucla.sspace.clustering.seeding.RandomSeed;
 import edu.ucla.sspace.common.Similarity;
 import edu.ucla.sspace.common.Statistics;
 
-import edu.ucla.sspace.matrix.Matrix;
 import edu.ucla.sspace.matrix.*;
 
 import edu.ucla.sspace.util.ReflectionUtil;
 
 import edu.ucla.sspace.vector.*;
-import edu.ucla.sspace.vector.DoubleVector;
-import edu.ucla.sspace.vector.ScaledDoubleVector;
-import edu.ucla.sspace.vector.SparseVector;
-import edu.ucla.sspace.vector.VectorMath;
 
-import java.io.FileReader;
-import java.io.BufferedReader;
-import java.io.IOError;
-import java.io.IOException;
-
-import java.util.ArrayList;
-import java.util.BitSet;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
-import java.util.Properties;
+import java.util.*;
 
 
 /**
@@ -189,22 +175,25 @@ public class DirectClustering implements Clustering {
                                       KMeansSeed seedType,
                                       CriterionFunction criterion) {
         int[] bestAssignment = null;
-        double bestScore = (criterion.isMaximize()) ? 0 : Double.MAX_VALUE;
+        double bestScore = (criterion.isMaximize()) ? -2 : Double.MAX_VALUE;
         for (int i = 0; i < numRepetitions; ++i) {
             clusterIteration(matrix, numClusters, seedType, criterion);
+            double score = criterion.score();
             if (criterion.isMaximize()) {
-                if (criterion.score() > bestScore) {
-                    bestScore = criterion.score();
+                if (score > bestScore) {
+                    if (criterion instanceof I3Function)
+                        ((I3Function) criterion).theBest();
+                    bestScore = score;
                     bestAssignment = criterion.assignments();
                 }
             } else {
-                if (criterion.score() < bestScore) {
-                    bestScore = criterion.score();
+                if (score < bestScore) {
+                    bestScore = score;
                     bestAssignment = criterion.assignments();
                 }
             }
         }
-
+        System.err.println();
         // Convert the array of assignments to an Assignments object.
         Assignment[] assignments = new Assignment[matrix.rows()];
         for (int i = 0; i < bestAssignment.length; ++i)
@@ -260,11 +249,16 @@ public class DirectClustering implements Clustering {
         // point, try to assign it to a new cluster.  If no data point is moved
         // in an iteration, end the iterations.
         boolean changed = true;
-        while (changed) {
+        for (int iters = 0; (changed) && (iters < 100); iters++) {
             changed = false;
+            int numChanged = 0;
             Collections.shuffle(indices);
-            for (int index : indices)
-                changed |= criterion.update(index);
+            for (int index : indices) {
+                boolean ch = criterion.update(index);
+                changed |= ch;
+                if (ch) numChanged++;
+            }
+            //System.err.printf("iteration %d: %d changed\n", iters, numChanged);
         }
     }
 

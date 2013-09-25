@@ -216,6 +216,8 @@ public class Matrices {
                 return new OnDiskMatrix(rows, cols);
             case DENSE_ON_DISK:
                 return new OnDiskMatrix(rows, cols);
+            case OLD_DENSE_IN_MEMORY:
+                return new OldArrayMatrix(rows, cols);
         }
         throw new IllegalArgumentException(
                 "Unknown matrix type: " + matrixType);

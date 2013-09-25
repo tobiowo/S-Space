@@ -68,7 +68,9 @@ public interface Matrix {
          * A diagonal {@code Matrix}, saving a little more meory than a sparse
          * {@code Matrix}.
          */
-        DIAGONAL_IN_MEMORY
+        DIAGONAL_IN_MEMORY,
+        
+        OLD_DENSE_IN_MEMORY
     }
 
     /**

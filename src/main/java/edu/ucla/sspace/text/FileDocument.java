@@ -21,12 +21,7 @@
 
 package edu.ucla.sspace.text;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOError;
-import java.io.IOException;
-import java.io.StringReader;
+import java.io.*;
 
 import edu.ucla.sspace.util.LineReader;
 
@@ -89,7 +84,7 @@ public class FileDocument implements Document {
     public BufferedReader reader() {
         try {
             return (contents == null) 
-                ? new BufferedReader(new FileReader(fileName))
+                ? new BufferedReader(new InputStreamReader(new FileInputStream(fileName), "UTF-8"))
                 : new BufferedReader(new StringReader(contents));
         } catch (IOException ioe) {
             throw new IOError(ioe);

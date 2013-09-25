@@ -21,9 +21,7 @@
 
 package edu.ucla.sspace.text;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 
 import java.util.Iterator;
 
@@ -59,7 +57,7 @@ public class OneLinePerDocumentIterator implements Iterator<Document> {
     public OneLinePerDocumentIterator(String documentsFile) 
             throws IOException {
             
-        documentsReader = new BufferedReader(new FileReader(documentsFile));
+        documentsReader = new BufferedReader(new InputStreamReader(new FileInputStream(documentsFile), "UTF-8"));
         nextLine = documentsReader.readLine();
     }
     

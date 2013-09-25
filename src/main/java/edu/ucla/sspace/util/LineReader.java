@@ -21,11 +21,7 @@
 
 package edu.ucla.sspace.util;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOError;
-import java.io.IOException;
+import java.io.*;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -99,7 +95,7 @@ public class LineReader implements Iterable<String> {
 
         public LineIterator() {
             try {
-                br = new BufferedReader(new FileReader(f));
+                br = new BufferedReader(new InputStreamReader(new FileInputStream(f), "UTF-8"));
                 advance();
             } catch (IOException ioe) {
                 throw new IOError(ioe);
